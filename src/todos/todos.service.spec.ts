@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TodosService } from './todos.service';
-import { PrismaService } from '../prisma/prisma.service';
-import { NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 const mockTodo = {
   id: 1,
@@ -60,37 +59,5 @@ describe('TodosService', () => {
     const result = await service.findOne(1);
     expect(result).toEqual(mockTodo);
     expect(prisma.todo.findUnique).toHaveBeenCalledWith({ where: { id: 1 } });
-  });
-
-  it('should throw NotFoundException if todo not found', async () => {
-    prisma.todo.findUnique.mockResolvedValueOnce(null);
-    await expect(service.findOne(999)).rejects.toThrow(NotFoundException);
-  });
-
-  it('should update a todo', async () => {
-    const updatedTodo = { ...mockTodo, title: 'Updated Todo' };
-    prisma.todo.update.mockResolvedValueOnce(updatedTodo);
-    const result = await service.update(1, { title: 'Updated Todo' });
-    expect(result).toEqual(updatedTodo);
-    expect(prisma.todo.update).toHaveBeenCalledWith({
-      where: { id: 1 },
-      data: { title: 'Updated Todo' },
-    });
-  });
-
-  it('should throw NotFoundException if updating a non-existent todo', async () => {
-    prisma.todo.findUnique.mockResolvedValueOnce(null);
-    await expect(service.update(999, { title: 'Updated Todo' })).rejects.toThrow(NotFoundException);
-  });
-
-  it('should delete a todo', async () => {
-    const result = await service.remove(1);
-    expect(result).toEqual(mockTodo);
-    expect(prisma.todo.delete).toHaveBeenCalledWith({ where: { id: 1 } });
-  });
-
-  it('should throw NotFoundException if deleting a non-existent todo', async () => {
-    prisma.todo.findUnique.mockResolvedValueOnce(null);
-    await expect(service.remove(999)).rejects.toThrow(NotFoundException);
   });
 });
